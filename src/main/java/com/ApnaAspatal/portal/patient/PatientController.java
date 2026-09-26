@@ -18,12 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ApnaAspatal.portal.patient.dto.PatientRequest;
 import com.ApnaAspatal.portal.patient.dto.PatientResponse;
 
-/**
- * HTTP entry point for patient resources.
- *
- * <p>Translates HTTP into service calls and back. It holds no business rules.
- * The {@code Patient} entity never leaves this class.
- */
 @RestController
 @RequestMapping("/api/patients")
 public class PatientController {
