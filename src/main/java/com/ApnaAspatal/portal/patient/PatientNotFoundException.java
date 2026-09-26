@@ -12,7 +12,6 @@ package com.ApnaAspatal.portal.patient;
  * safety. The handler deals with it once, centrally.
  */
 public class PatientNotFoundException extends RuntimeException {
-
     public PatientNotFoundException(Long id) {
         super("Patient not found with id: " + id);
     }

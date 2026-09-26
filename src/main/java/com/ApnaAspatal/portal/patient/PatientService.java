@@ -1,4 +1,6 @@
 package com.ApnaAspatal.portal.patient;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 @Service 
 public class PatientService {
@@ -15,6 +17,26 @@ public class PatientService {
 
     public Patient getPatientById(Long id){
         return patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException(id));
+    }
+
+    public List<Patient> getAllPatients() {
+        return patientRepository.findAll();
+    }
+
+    public Patient updatePatient(Long id, Patient updatedPatient) {
+        Patient existing = getPatientById(id);
+
+        existing.setFullName(updatedPatient.getFullName());
+        existing.setEmail(updatedPatient.getEmail());
+        existing.setPhone(updatedPatient.getPhone());
+        existing.setDateOfBirth(updatedPatient.getDateOfBirth());
+
+        return patientRepository.save(existing);
+    }
+
+    public void deletePatient(Long id) {
+        Patient existing = getPatientById(id);
+        patientRepository.delete(existing);
     }
 
 
