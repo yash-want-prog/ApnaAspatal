@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ApnaAspatal.portal.patient.PatientNotFoundException;
+import com.ApnaAspatal.portal.triage.TriageSessionNotFoundException;
 
 /**
  * Translates exceptions into HTTP responses for every controller in the
@@ -22,6 +23,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PatientNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handlePatientNotFound(PatientNotFoundException ex) {
+        return new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), Instant.now());
+    }
+
+    @ExceptionHandler(TriageSessionNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handleTriageSessionNotFound(TriageSessionNotFoundException ex) {
         return new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage(), Instant.now());
     }
 }
