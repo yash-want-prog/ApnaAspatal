@@ -1,5 +1,6 @@
 package com.ApnaAspatal.portal.triage.engine;
 
+import java.time.Period;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,23 +16,45 @@ import com.ApnaAspatal.portal.triage.SymptomSeverity;
  * rather than entities so that it cannot trigger lazy loading, cannot mutate
  * managed state, and can be exercised in a unit test without a database.
  *
- * @param answersByQuestionKey each answered question's {@code questionKey} mapped to the answer given
+ * <p>Age arrives already computed. The caller derives it from the patient's date
+ * of birth and the evaluation date; the engine never reads the clock, so the
+ * same facts always describe the same patient.
+ *
+ * @param patientAge           the patient's age at evaluation, as years, months
+ *                             and days; normalised, never negative
+ * @param answersByQuestionKey each answered question's {@code questionKey} mapped
+ *                             to the answer given
  * @param symptoms             the symptoms reported in the session
  */
 public record TriageFacts(
+        Period patientAge,
         Map<String, String> answersByQuestionKey,
         List<SymptomFact> symptoms) {
 
     /**
-     * Defensive copies: callers cannot change the facts after the engine has
-     * been handed them. {@code Map.copyOf} and {@code List.copyOf} also reject
-     * null keys, values, and elements.
+     * Validates and defensively copies. Age is normalised so that, for example,
+     * 30 months reads as 2 years 6 months rather than 0 years. {@code Map.copyOf}
+     * and {@code List.copyOf} also reject null keys, values, and elements.
      */
     public TriageFacts {
+        Objects.requireNonNull(patientAge, "patientAge must not be null");
+        patientAge = patientAge.normalized();
+        if (patientAge.isNegative()) {
+            throw new IllegalArgumentException("patientAge must not be negative: " + patientAge);
+        }
+
         Objects.requireNonNull(answersByQuestionKey, "answersByQuestionKey must not be null");
         Objects.requireNonNull(symptoms, "symptoms must not be null");
         answersByQuestionKey = Map.copyOf(answersByQuestionKey);
         symptoms = List.copyOf(symptoms);
+    }
+
+    /**
+     * Completed years of age - the common case for adult rules. Use
+     * {@link #patientAge()} directly where months matter, as they do for infants.
+     */
+    public int ageInYears() {
+        return patientAge.getYears();
     }
 
     /**
