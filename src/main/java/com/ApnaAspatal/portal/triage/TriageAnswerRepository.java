@@ -1,7 +1,6 @@
 package com.ApnaAspatal.portal.triage;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,10 +21,4 @@ public interface TriageAnswerRepository extends JpaRepository<TriageAnswer, Long
      */
     @Query("select a from TriageAnswer a join fetch a.question where a.triageSession.id = :sessionId")
     List<TriageAnswer> findBySessionIdWithQuestion(@Param("sessionId") Long sessionId);
-
-    /**
-     * The existing answer to one question in one session, if there is one. At most
-     * one can exist - the table has a unique constraint on the pair.
-     */
-    Optional<TriageAnswer> findByTriageSessionIdAndQuestionId(Long triageSessionId, Long questionId);
 }

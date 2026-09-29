@@ -2,6 +2,8 @@ package com.ApnaAspatal.portal.triage;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.ApnaAspatal.portal.patient.Patient;
 
 import jakarta.persistence.Column;
@@ -44,6 +46,19 @@ public class TriageSession {
     private LocalDateTime startedAt;
 
     private LocalDateTime completedAt;
+
+    /**
+     * Incremented whenever anything the rule engine reads changes - an answer
+     * recorded, changed or removed, or a symptom added. A result is current only
+     * if it was computed at the session's present inputs version.
+     *
+     * <p>The database default fills the column for sessions that existed before
+     * it was added; {@code ddl-auto=update} cannot add a NOT NULL column to a
+     * non-empty table without one.
+     */
+    @ColumnDefault("0")
+    @Column(nullable = false)
+    private long inputsVersion;
 
     /**
      * Required by JPA. Hibernate instantiates entities reflectively before
@@ -94,5 +109,18 @@ public class TriageSession {
 
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
+    }
+
+    public long getInputsVersion() {
+        return inputsVersion;
+    }
+
+    /**
+     * Records that the rule engine's inputs changed, so any existing result is no
+     * longer current. Package-private: only the triage services that change
+     * answers and symptoms may call it, and only while holding the session lock.
+     */
+    void recordInputsChanged() {
+        inputsVersion++;
     }
 }

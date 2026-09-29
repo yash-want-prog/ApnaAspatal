@@ -3,10 +3,15 @@ package com.ApnaAspatal.portal.patient;
 import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
+import com.ApnaAspatal.portal.auth.AppUser;
 
 /**
  * A patient registered with SmartTriage.
@@ -30,6 +35,17 @@ public class Patient {
     private String phone;
 
     private LocalDate dateOfBirth;
+
+    /**
+     * The account this record belongs to; only its owner can read or change it.
+     *
+     * <p>Nullable in the schema only because records created before accounts
+     * existed have no owner. Those match no owner's queries, so they are
+     * unreachable rather than exposed. Every new record is given an owner.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private AppUser owner;
 
     /**
      * Required by JPA. Hibernate instantiates entities reflectively before
@@ -84,5 +100,13 @@ public class Patient {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    /**
+     * Package-private: only {@code PatientService} assigns an owner, once, when
+     * the record is created. There is no way to transfer a record.
+     */
+    void assignOwner(AppUser owner) {
+        this.owner = owner;
     }
 }

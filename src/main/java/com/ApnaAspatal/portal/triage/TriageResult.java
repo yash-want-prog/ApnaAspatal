@@ -56,6 +56,17 @@ public class TriageResult {
     private LocalDateTime evaluatedAt;
 
     /**
+     * The session's inputs version this result was computed from. The result is
+     * current only while the session is still at that version; once an answer or
+     * symptom changes, it is stale until the session is evaluated again.
+     *
+     * <p>Null for a result not stamped with a version - one stored before versions
+     * existed, or one produced outside {@code TriageResultService}. Such a result
+     * is never treated as current, so staleness fails safe.
+     */
+    private Long evaluatedInputsVersion;
+
+    /**
      * Required by JPA. Hibernate instantiates entities reflectively before
      * populating their fields.
      */
@@ -112,5 +123,25 @@ public class TriageResult {
 
     public void setEvaluatedAt(LocalDateTime evaluatedAt) {
         this.evaluatedAt = evaluatedAt;
+    }
+
+    public Long getEvaluatedInputsVersion() {
+        return evaluatedInputsVersion;
+    }
+
+    /**
+     * Package-private: only {@code TriageResultService} stamps a result, while it
+     * holds the session lock, so the version recorded is the one evaluated.
+     */
+    void recordEvaluatedInputsVersion(long inputsVersion) {
+        this.evaluatedInputsVersion = inputsVersion;
+    }
+
+    /**
+     * Whether this result still describes the session's current answers and
+     * symptoms.
+     */
+    public boolean isCurrentFor(TriageSession session) {
+        return evaluatedInputsVersion != null && evaluatedInputsVersion == session.getInputsVersion();
     }
 }

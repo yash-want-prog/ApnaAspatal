@@ -2,6 +2,8 @@ package com.ApnaAspatal.portal.triage.question;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,8 +35,13 @@ public class TriageQuestion {
     @Column(nullable = false, length = 500)
     private String questionText;
 
+    /**
+     * Stored by name in the same {@code varchar(32)} column the field used when it
+     * was a plain string, so existing rows read back unchanged.
+     */
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
-    private String answerType;
+    private QuestionAnswerType answerType;
 
     /**
      * Whether the question may still be asked. Questions are deactivated rather
@@ -68,11 +75,11 @@ public class TriageQuestion {
     protected TriageQuestion() {
     }
 
-    public TriageQuestion(String questionKey, String questionText, String answerType) {
+    public TriageQuestion(String questionKey, String questionText, QuestionAnswerType answerType) {
         this(questionKey, questionText, answerType, null, null);
     }
 
-    public TriageQuestion(String questionKey, String questionText, String answerType,
+    public TriageQuestion(String questionKey, String questionText, QuestionAnswerType answerType,
             String dependsOnQuestionKey, String dependsOnAnswer) {
         this.questionKey = questionKey;
         this.questionText = questionText;
@@ -109,7 +116,7 @@ public class TriageQuestion {
      * No setter: changing the answer type of a question already in use would
      * invalidate answers already stored against it.
      */
-    public String getAnswerType() {
+    public QuestionAnswerType getAnswerType() {
         return answerType;
     }
 

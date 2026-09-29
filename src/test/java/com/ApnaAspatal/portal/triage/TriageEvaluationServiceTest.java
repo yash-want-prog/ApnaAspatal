@@ -32,6 +32,7 @@ import com.ApnaAspatal.portal.triage.engine.TriageDecision;
 import com.ApnaAspatal.portal.triage.engine.TriageFacts;
 import com.ApnaAspatal.portal.triage.engine.TriageFacts.SymptomFact;
 import com.ApnaAspatal.portal.triage.engine.TriageRuleEngine;
+import com.ApnaAspatal.portal.triage.question.QuestionAnswerType;
 import com.ApnaAspatal.portal.triage.question.TriageQuestion;
 
 /**
@@ -307,7 +308,7 @@ class TriageEvaluationServiceTest {
     }
 
     private static TriageQuestion question(String key) {
-        return new TriageQuestion(key, key + "?", "BOOLEAN");
+        return new TriageQuestion(key, key + "?", QuestionAnswerType.BOOLEAN);
     }
 
     private static TriageDecision decisionWithCodes(String... codes) {

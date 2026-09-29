@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ApnaAspatal.portal.triage.dto.NextQuestionResponse;
@@ -29,11 +28,18 @@ public class TriageAnswerController {
         this.triageAnswerService = triageAnswerService;
     }
 
+    /**
+     * 201 when the question is answered for the first time; 200 when an existing
+     * answer is replaced - nothing new is created then. The body is the same
+     * either way.
+     */
     @PostMapping("/answers")
-    @ResponseStatus(HttpStatus.CREATED)
-    public TriageAnswerResponse submit(@PathVariable Long sessionId,
+    public ResponseEntity<TriageAnswerResponse> submit(@PathVariable Long sessionId,
             @Valid @RequestBody TriageAnswerRequest request) {
-        return triageAnswerService.submitAnswer(sessionId, request);
+        TriageAnswerService.SubmittedAnswer submitted = triageAnswerService.submitAnswer(sessionId, request);
+        return ResponseEntity
+                .status(submitted.created() ? HttpStatus.CREATED : HttpStatus.OK)
+                .body(submitted.answer());
     }
 
     /**
